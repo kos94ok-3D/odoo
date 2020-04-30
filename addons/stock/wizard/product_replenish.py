@@ -27,7 +27,7 @@ class ProductReplenish(models.TransientModel):
         res = super(ProductReplenish, self).default_get(fields)
         company_user = self.env.user.company_id
         warehouse = self.env['stock.warehouse'].search([('company_id', '=', company_user.id)], limit=1)
-        product_tmpl_id = False
+        product_tmpl_id = self.env['product.template']
         if 'product_id' in fields:
             if self.env.context.get('default_product_id'):
                 product_id = self.env['product.product'].browse(self.env.context['default_product_id'])
@@ -42,9 +42,9 @@ class ProductReplenish(models.TransientModel):
                     res['product_has_variants'] = True 
         if 'product_uom_id' in fields:
             res['product_uom_id'] = product_tmpl_id.uom_id.id
-        if 'warehouse_id' in fields:
+        if 'warehouse_id' in fields and not res.get('warehouse_id', False):
             res['warehouse_id'] = warehouse.id
-        if 'date_planned' in fields:
+        if 'date_planned' in fields and not res.get('date_planned', False):
             res['date_planned'] = datetime.datetime.now()
         return res
 
